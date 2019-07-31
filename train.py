@@ -69,6 +69,7 @@ class NaiveBayes:
                 filledPix += 1
             if c == '\n':
                 psiVector.append(filledPix/totalPix)
+                filledPix = 0
                 totalPix = 0
                 continue
             totalPix += 1
@@ -87,3 +88,5 @@ if __name__ == '__main__':
     Train.randomSelect(0.001, data, labels, selData, selLabels)
     yEstimate = NaiveBayes.estimateYTrue(labels)
     psiList = NaiveBayes.psiVector(selData)
+    for i in psiList:
+        print(i)

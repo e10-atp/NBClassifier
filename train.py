@@ -54,20 +54,26 @@ class NaiveBayes:
 
     @staticmethod
     def psiVector(selData):
-        psiVector = list()
+        psiList = list()
         for x in selData:
-            psiVector.append(NaiveBayes.psiFunc(x))
-        return psiVector
+            psiList.append(NaiveBayes.psiFunc(x))
+        return psiList
 
     @staticmethod
-    def psiFunc(x): #number of + and # over total pixels
+    def psiFunc(x): #number of + and # over total pixels in line
+        psiVector = list()
         totalPix = 0
         filledPix = 0
         for c in x:
             if c == '+' or c == '#':
                 filledPix += 1
+            if c == '\n':
+                psiVector.append(filledPix/totalPix)
+                totalPix = 0
+                continue
             totalPix += 1
-        return filledPix/totalPix
+        return psiVector
+
 
 if __name__ == '__main__':
     relpath = os.path.dirname(__file__)
@@ -80,4 +86,4 @@ if __name__ == '__main__':
     Train.scanIn(srcx, srcy, data, labels)
     Train.randomSelect(0.001, data, labels, selData, selLabels)
     yEstimate = NaiveBayes.estimateYTrue(labels)
-    psiVector = NaiveBayes.psiVector(selData)
+    psiList = NaiveBayes.psiVector(selData)

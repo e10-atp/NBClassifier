@@ -30,14 +30,14 @@ class Train:
         fx.close()
         fy = open(str(srcy), 'r')
         for line in fy:
-            labels.append(line)
+            labels.append(line.strip())
         fy.close()
 
     @staticmethod
     def randomSelect(rate, data, labels, selData, selLabels):  # insert number between 0 and 1
         lim = math.ceil(len(data) * rate)
         for i in range(0, lim):
-            randnum = random.randint(0, len(data))
+            randnum = random.randint(0, len(data) - 1)
             selData.append(data[randnum])
             selLabels.append(labels[randnum])
 
@@ -61,19 +61,31 @@ class NaiveBayes:
 
     @staticmethod
     def psiFunc(x): #number of + and # over total pixels in line
-        psiVector = list()
-        totalPix = 0
-        filledPix = 0
+        psiVector = {
+            'blankPix' : 0,
+            'filledPix' : 0
+        }
         for c in x:
             if c == '+' or c == '#':
-                filledPix += 1
-            if c == '\n':
-                psiVector.append(filledPix/totalPix)
-                filledPix = 0
-                totalPix = 0
+                psiVector['filledPix'] += 1
+            elif c == '\n':
                 continue
-            totalPix += 1
+            else:
+                psiVector['blankPix'] += 1
         return psiVector
+
+    @staticmethod
+    def xGivenY(psiList, yEstimate):
+        #this needs to be rewritten
+        values = collections.OrderedDict()
+        for vector in psiList:
+            for index in vector:
+                if index not in values:
+                    values[str(index)] = 1
+                else:
+                    values[str(index)] += 1
+        return values
+
 
 
 if __name__ == '__main__':
@@ -86,7 +98,8 @@ if __name__ == '__main__':
     selLabels = list()
     Train.scanIn(srcx, srcy, data, labels)
     Train.randomSelect(0.001, data, labels, selData, selLabels)
-    yEstimate = NaiveBayes.estimateYTrue(labels)
+    yEstimate = NaiveBayes.estimateYTrue(selLabels)
     psiList = NaiveBayes.psiVector(selData)
     for i in psiList:
         print(i)
+    print(yEstimate)

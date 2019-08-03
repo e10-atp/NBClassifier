@@ -85,6 +85,14 @@ class NaiveBayes:
         else:
             return False
 
+    @staticmethod
+    def yGivenX(xGivenYTrue, yTrue, xGivenYFalse, yFalse):
+        Lx = NaiveBayes.liklihoodRatio(xGivenYTrue, yTrue, xGivenYFalse, yFalse)
+        if NaiveBayes.decideY(Lx):
+            yGivenX = xGivenYTrue * yTrue / Lx
+        else:
+            yGivenX = xGivenYFalse * yFalse / Lx
+        return yGivenX
 
 if __name__ == '__main__':
     relpath = os.path.dirname(__file__)

@@ -1,5 +1,5 @@
 import os, math, random, collections
-
+from Node import Node
 
 class Train:
 
@@ -34,43 +34,42 @@ class Train:
         fy.close()
 
     @staticmethod
-    def randomSelect(rate, data, labels, selData, selLabels):  # insert number between 0 and 1
+    def randomSelect(rate, data, labels, instances):  # insert number between 0 and 1
         lim = math.ceil(len(data) * rate)
         for i in range(0, lim):
             randnum = random.randint(0, len(data) - 1)
-            selData.append(data[randnum])
-            selLabels.append(labels[randnum])
+            instances.append(Node(data[randnum], labels[randnum]))
 
 
 class NaiveBayes:
 
     @staticmethod
-    def estimateYTrue(selLabels):
-        n = len(selLabels)
-        yList = collections.Counter(selLabels)
-        for c in yList:
-            yList[c] = yList[c] / n
+    def estimateYTrue(instances):
+        yList = {}
+        for node in instances:
+            if node.label not in yList:
+                yList[str(node.label)] = 1
+            else:
+                yList[str(node.label)] += 1
         return yList
 
     @staticmethod
-    def psiVector(selData):
-        psiList = list()
-        for x in selData:
-            psiList.append(NaiveBayes.psiFunc(x))
-        return psiList
+    def psiVector(instances):
+        for node in instances:
+            node.psiList.append(NaiveBayes.psiFunc(node))
 
     @staticmethod
-    def psiFunc(x): #number of + and # over total pixels in line
+    def psiFunc(node): #number of + and # over total pixels in line
         psiVector = {
-            'blankPix' : 0,
-            'filledPix' : 0
+            'blankPix': 0,
+            'filledPix': 0
         }
-        for c in x:
+        for c in node.image:
             if c == '+' or c == '#':
                 psiVector['filledPix'] += 1
             elif c == '\n':
                 continue
-            else:
+            else: #if it's a space
                 psiVector['blankPix'] += 1
         return psiVector
 
@@ -94,12 +93,12 @@ if __name__ == '__main__':
     srcy = os.path.join(relpath, r'data/digitdata/traininglabels')
     data = list()  # complete dataset
     labels = list()
-    selData = list()  # randomly selected data
-    selLabels = list()
     Train.scanIn(srcx, srcy, data, labels)
-    Train.randomSelect(0.001, data, labels, selData, selLabels)
-    yEstimate = NaiveBayes.estimateYTrue(selLabels)
-    psiList = NaiveBayes.psiVector(selData)
-    for i in psiList:
-        print(i)
+    instances = list()
+    Train.randomSelect(0.001, data, labels, instances)
+    yEstimate = NaiveBayes.estimateYTrue(instances)
+    psiList = NaiveBayes.psiVector(instances)
+    for i in instances:
+        for j in i.psiList:
+            print(j)
     print(yEstimate)

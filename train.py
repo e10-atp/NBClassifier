@@ -54,7 +54,7 @@ class NaiveBayes:
         return yList
 
     @staticmethod
-    def psiVector(instances):
+    def mapPsiVectors(instances):
         for node in instances:
             node.psiList.append(NaiveBayes.psiFunc(node))
 
@@ -97,7 +97,7 @@ if __name__ == '__main__':
     instances = list()
     Train.randomSelect(0.001, data, labels, instances)
     yEstimate = NaiveBayes.estimateYTrue(instances)
-    psiList = NaiveBayes.psiVector(instances)
+    NaiveBayes.mapPsiVectors(instances)
     for i in instances:
         for j in i.psiList:
             print(j)

@@ -5,75 +5,95 @@ from Scan import Scan
 
 class NaiveBayes:
 
-    def __init__(self, instances):
-        self.instances = instances
-        self.p_Y = {}
-        self.learnedList = []
+    def __init__(self, samples):
+        self.samples = samples
+        self.cntY = {}
 
-    def probY(self):
-        for node in self.instances:
-            if node.label not in self.p_Y:
-                self.p_Y[node.label] = 1
+        self.train()
+        self.nLabels = len(self.cntY)
+
+    def countY(self):
+        for node in self.samples:
+            if node.label not in self.cntY:
+                self.cntY[node.label] = 1
             else:
-                self.p_Y[node.label] += 1
+                self.cntY[node.label] += 1
 
-    def psiFunc(self):  # number of + and # over total pixels in line
-        for node in self.instances:
-            node.psiVector = {
+    def buildPhi(self):  # number of + and # over total pixels in line
+        for node in self.samples:
+            node.phiVector = {
                 'blankPix': 0,
                 'filledPix': 0
             }
             for c in node.image:
                 if c == '+' or c == '#':
-                    node.psiVector['filledPix'] += 1
+                    node.phiVector['filledPix'] += 1
                 elif c == '\n':
                     continue
                 else:  # if it's a space
-                    node.psiVector['blankPix'] += 1
+                    node.phiVector['blankPix'] += 1
 
+    def p_feature(self, x, j):
+        return self.p_phiXandYTrue(x, j) / self.cntY[x.label]
 
-    def xGivenYTrue(self, node):
-        xGivenYTrue = 0
-        for j in node.psiVector:
-            if xGivenYTrue == 0:
-                xGivenYTrue = self.psiXandYTrue(node, j) / self.p_Y[node.label]
-            else:
-                xGivenYTrue *= self.psiXandYTrue(node, j) / self.p_Y[node.label]
-        return xGivenYTrue
+    def p_featureFalse(self, x, j):
+        return self.p_phiXandYFalse(x, j) / self.complement(self.cntY[x.label])
 
-    def psiXandYTrue(self, node, j):
+    def p_xGivenYTrue(self, x):
+        prod = 1.0
+        for j in x.phiVector:
+            prod *= self.p_feature(x, j)
+        return prod
+
+    def p_phiXandYTrue(self, x, j):
         count = 0
-        for n in self.instances:
-            if n.psiVector[j] == node.psiVector[j] and n.label == node.label:
+        for n in self.samples:
+            if n.phiVector[j] == x.phiVector[j] and n.label == x.label:
                 count += 1
         return count
 
-    def xGivenYFalse(self, node):
-        xGivenYFalse = 0
-        for j in node.psiVector:
-            if xGivenYFalse == 0:
-                xGivenYFalse = self.psiXandYFalse(instances, node, j) /self.complement(instances, self.p_Y[node.label])
-            else:
-                xGivenYFalse *= self.psiXandYFalse(instances, node, j) / self.complement(instances, self.p_Y[node.label])
-        return xGivenYFalse
+    def p_xGivenYFalse(self, x):
+        prod = 1.0
+        for j in x.phiVector:
+            prod *= self.p_featureFalse(x, j) #p feature false is 0
+        return prod
 
-    def psiXandYFalse(self, node, j):
+    def p_phiXandYFalse(self, x, j):
+        #what happens when this never occurs?
         count = 0
-        for n in self.instances:
-            if n.psiVector[j] == node.psiVector[j] and n.label != node.label:
+        for n in self.samples:
+            if n.phiVector[j] == x.phiVector[j] and n.label != x.label:
                 count += 1
+        if count == 0:
+            count = 0.0000000000001
         return count
 
     def complement(self, num):
-        return len(self.instances) - float(num)
+        return len(self.samples) - float(num)
 
-    @staticmethod
-    def liklihoodRatio(xGivenYTrue, yTrue, xGivenYFalse, yFalse):
-        liklihoodRatio = (xGivenYTrue * yTrue) / (xGivenYFalse * yFalse)
-        return liklihoodRatio >= 1
+    def liklihoodRatio(self, x):
+        top = self.p_xGivenYTrue(x) * self.cntY[x.label]
+        bottom = self.p_xGivenYFalse(x) * self.complement(self.cntY[x.label])
+        liklihoodRatio = top / bottom
+        #liklihoodRatio = (self.p_xGivenYTrue(x) * self.cntY[x.label]) / (self.p_xGivenYFalse(x) * self.complement(self.cntY[x.label]))
+        return liklihoodRatio
 
     def train(self):
-        print("placeholder")
+        self.countY()
+        self.buildPhi()
+
+    def predict(self, x):
+        #check this
+        max_p = 0
+        max_label = None
+        for key, val in self.cntY.items():
+            x.label = key #this is wrong
+            p = self.liklihoodRatio(x)
+            if p >= 1 and p > max_p:
+                max_p = p
+                max_label = key
+        return max_p, max_label
+
 
 if __name__ == '__main__':
     relpath = os.path.dirname(__file__)
@@ -82,15 +102,15 @@ if __name__ == '__main__':
     data = list()  # complete dataset
     labels = list()
     Scan.scanIn(srcx, srcy, data, labels)
-    instances = Scan.randomSelect(0.001, data, labels)
+    instances = Scan.randomSelect(1, data, labels)
     bayes = NaiveBayes(instances)
-    yEstimate = bayes.probY()
-    bayes.psiFunc()
-    for i in bayes.instances:
-        print(i.psiVector)
-    print(bayes.p_Y)
-    for u in bayes.p_Y:
-        print(bayes.complement(bayes.p_Y[u]))
+    for i in bayes.samples:
+        print(i.phiVector)
+    print(bayes.cntY)
+    for u in bayes.cntY:
+        print(bayes.complement(bayes.cntY[u]))
     #for i in instances:
+    for x in instances:
+        bayes.predict(x)
 
 

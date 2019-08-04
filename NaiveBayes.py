@@ -9,7 +9,8 @@ class NaiveBayes:
         self.samples = samples
         self.cntY = {}
 
-        self.train()
+        self.countY()
+        self.buildPhi()
         self.nLabels = len(self.cntY)
 
     def countY(self):
@@ -55,11 +56,11 @@ class NaiveBayes:
     def p_xGivenYFalse(self, x, y):
         prod = 1.0
         for j in x.phiVector:
-            prod *= self.p_featureFalse(x, j, y) #p feature false is 0
+            prod *= self.p_featureFalse(x, j, y)  # p feature false is 0
         return prod
 
     def p_phiXandYFalse(self, x, j, y):
-        #what happens when this never occurs?
+        # what happens when this never occurs?
         count = 0
         for n in self.samples:
             if n.phiVector[j] == x.phiVector[j] and n.label != y:
@@ -75,15 +76,11 @@ class NaiveBayes:
         if bottom == 0:
             bottom = 0.00000001
         liklihoodRatio = top / bottom
-        #liklihoodRatio = (self.p_xGivenYTrue(x) * self.cntY[x.label]) / (self.p_xGivenYFalse(x) * self.complement(self.cntY[x.label]))
+        # liklihoodRatio = (self.p_xGivenYTrue(x) * self.cntY[x.label]) / (self.p_xGivenYFalse(x) * self.complement(self.cntY[x.label]))
         return liklihoodRatio
 
-    def train(self):
-        self.countY()
-        self.buildPhi()
-
     def predict(self, x):
-        #check this
+        # check this
         max_p = 0
         max_label = None
         for l in self.cntY:
@@ -98,20 +95,18 @@ if __name__ == '__main__':
     relpath = os.path.dirname(__file__)
     srcx = os.path.join(relpath, r'data/digitdata/trainingimages')
     srcy = os.path.join(relpath, r'data/digitdata/traininglabels')
-    data = list()  # complete dataset
-    labels = list()
-    Scan.scanIn(srcx, srcy, data, labels)
-    instances = Scan.randomSelect(1, data, labels)
+    instances = Scan.scanIn(srcx, srcy, 1)
     bayes = NaiveBayes(instances)
     print(bayes.cntY)
-    srcTest = os.path.join(relpath, r'data/digitdata/validationimages')
+    srcTestX = os.path.join(relpath, r'data/digitdata/validationimages')
+    srcTestY = os.path.join(relpath, r'data/digitdata/validationlabels')
+    testInstances = Scan.scanIn(srcTestX, srcTestY, 1)
+    testBayes = NaiveBayes(testInstances)
     total = 0
     correct = 0
-    for x in instances:
+    for x in testBayes.samples:
         total += 1
         p, label = bayes.predict(x)
         if (x.label == label):
             correct += 1
-    print(f"Percent Correct: {correct/total * 100}%")
-
-
+    print(f"Percent Correct: {correct / total * 100}%")

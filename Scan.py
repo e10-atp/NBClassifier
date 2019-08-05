@@ -35,7 +35,7 @@ class Scan:
     @staticmethod
     def sanitize(data):
         for s in data:
-            if len(s) < 28 * 6:  # 6-10 is a valid range for digit training
+            if len(s.split('\n')) < 7:  # 7-10 is a valid range for digit training
                 data.remove(s)
 
     @staticmethod
@@ -43,6 +43,6 @@ class Scan:
         samples = []
         lim = math.ceil(len(data) * rate)
         for i in range(0, lim):
-            randnum = random.randint(0, len(data) - 1)
+            randnum = random.randint(0, len(labels) - 1)
             samples.append(Node(data[randnum], labels[randnum]))
         return samples

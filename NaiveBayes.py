@@ -20,29 +20,6 @@ class NaiveBayes:
             else:
                 self.cntY[node.label] += 1
 
-    def buildPhi(self):  # number of + and # over total pixels in line
-        for node in self.samples:
-            node.phiVector = {
-                'filled': 0,
-                #'#': 0,
-                'blank': 0,
-                'm': None
-                #,'b': None
-            }
-            for c in node.image:
-                if c == '+':
-                    node.phiVector['filled'] += 1
-                elif c == '\n':
-                    continue
-                elif c == '#':
-                    node.phiVector['filled'] += 1
-                else:  # if it's a space
-                    node.phiVector['blank'] += 1
-            xList, yList = Regression.makeLists(node.image)
-            m, b = Regression.findRegression(xList, yList)
-            node.phiVector['m'] = round(m, 1)
-            #node.phiVector['b'] = round(b)
-
     def p_feature(self, x, j, y):
         return self.p_phiXandYTrue(x, j, y) / self.cntY[y]
 
@@ -99,6 +76,29 @@ class NaiveBayes:
                 max_label = l
         return max_p, max_label
 
+    def buildPhi(self):  # number of + and # over total pixels in line
+        for node in self.samples:
+            node.phiVector = {
+                #'filled': 0,
+                #'#': 0,
+                #'blank': 0,
+                'm': None
+                #,'b': None
+            }
+            #for c in node.image:
+            #    if c == '+':
+            #        node.phiVector['filled'] += 1
+            #    elif c == '\n':
+            #        continue
+           #    elif c == '#':
+            #        node.phiVector['filled'] += 1
+            #    else:  # if it's a space
+            #        node.phiVector['blank'] += 1
+            xList, yList = Regression.makeLists(node.image)
+            m, b = Regression.findRegression(xList, yList)
+            node.phiVector['m'] = round(m, 1)
+            #node.phiVector['b'] = round(b)
+
 
 if __name__ == '__main__':
     relpath = os.path.dirname(__file__)
@@ -108,16 +108,16 @@ if __name__ == '__main__':
     facey = os.path.join(relpath, r'data/facedata/facedatatrainlabels')
     digitHeight = 28
     faceHeight = 70
-    #instances = Scan.scanIn(srcx, srcy, digitHeight, 1)
-    instances = Scan.scanIn(facex, facey, faceHeight, 1)
+    instances = Scan.scanIn(srcx, srcy, digitHeight, 1)
+    #instances = Scan.scanIn(facex, facey, faceHeight, 1)
     bayes = NaiveBayes(instances)
     print(bayes.cntY)
     srcTestX = os.path.join(relpath, r'data/digitdata/validationimages')
     srcTestY = os.path.join(relpath, r'data/digitdata/validationlabels')
     ftestx = os.path.join(relpath, r'data/facedata/facedatavalidation')
     ftesty = os.path.join(relpath, r'data/facedata/facedatavalidationlabels')
-    #testInstances = Scan.scanIn(srcTestX, srcTestY, digitHeight, 1)
-    testInstances = Scan.scanIn(ftestx, ftesty, faceHeight, 1)
+    testInstances = Scan.scanIn(srcTestX, srcTestY, digitHeight, 1)
+    #testInstances = Scan.scanIn(ftestx, ftesty, faceHeight, 1)
     testBayes = NaiveBayes(testInstances) #assigns psivalues to all the test images
     total = 0
     correct = 0

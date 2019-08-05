@@ -40,15 +40,7 @@ class NaiveBayes:
             xList, yList = Regression.makeLists(node.image)
             m, b = Regression.findRegression(xList, yList)
             node.phiVector['m'] = round(m)
-
-    def buildPhiRegression(self):  # number of + and # over total pixels in line
-        for node in self.samples:
-            node.phiVector = {
-                'm': 0
-            }
-            xList, yList = Regression.makeLists(node.image)
-            m, b = Regression.findRegression(xList, yList)
-            node.phiVector['m'] = round(1)
+            #node.phiVector['b'] = round(b)
 
     def p_feature(self, x, j, y):
         return self.p_phiXandYTrue(x, j, y) / self.cntY[y]
@@ -100,7 +92,8 @@ class NaiveBayes:
         max_label = None
         for l in self.cntY:
             p = self.liklihoodRatio(x, l)
-            if p >= 1 and p > max_p:
+            #if p >= 1 and p > max_p: removing this might make the algorithmn incorrect
+            if p > max_p:
                 max_p = p
                 max_label = l
         return max_p, max_label
@@ -110,12 +103,18 @@ if __name__ == '__main__':
     relpath = os.path.dirname(__file__)
     srcx = os.path.join(relpath, r'data/digitdata/trainingimages')
     srcy = os.path.join(relpath, r'data/digitdata/traininglabels')
-    instances = Scan.scanIn(srcx, srcy, 1)
+    facex = os.path.join(relpath, r'data/facedata/facedatatrain')
+    facey = os.path.join(relpath, r'data/facedata/facedatatrainlabels')
+    digitHeight = 28
+    faceHeight = 70
+    instances = Scan.scanIn(facex, facey, faceHeight, 1)
     bayes = NaiveBayes(instances)
     print(bayes.cntY)
     srcTestX = os.path.join(relpath, r'data/digitdata/validationimages')
     srcTestY = os.path.join(relpath, r'data/digitdata/validationlabels')
-    testInstances = Scan.scanIn(srcTestX, srcTestY, 1)
+    ftestx = os.path.join(relpath, r'data/facedata/facedatavalidation')
+    ftesty = os.path.join(relpath, r'data/facedata/facedatavalidationlabels')
+    testInstances = Scan.scanIn(ftestx, ftesty, faceHeight, 1)
     testBayes = NaiveBayes(testInstances) #assigns psivalues to all the test images
     total = 0
     correct = 0
@@ -126,4 +125,6 @@ if __name__ == '__main__':
             correct += 1
     print(f"Percent Correct: {correct / total * 100}%")
     print(len(bayes.samples))
-    print()
+    #for i in instances:
+    #    print(i.image)
+    #    print('------------------------')

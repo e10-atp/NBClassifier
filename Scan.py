@@ -1,28 +1,23 @@
 import math, random
 from Node import Node
+from itertools import islice
 
 
 class Scan:
 
     @staticmethod
-    def scanIn(srcx, srcy, rate):
+    def scanIn(srcx, srcy, height, rate):
         data = list()
-        labels = list()
-        fx = open(str(srcx), 'r')
-        emptyFlag = True
-        for line in fx:
-            if Scan.emptyLine(line):
-                emptyFlag = True
-                continue
-            else:
-                if emptyFlag:
-                    emptyFlag = False
-                    data.append(line)
-                else:
-                    data[-1] += line
+        with open(str(srcx), 'r') as fx:
+            while True:
+                image = list(islice(fx, height))
+                if not image: #EOF
+                    break
+                image = ''.join(image)
+                data.append(image)
         fx.close()
-        Scan.sanitize(data)
         fy = open(str(srcy), 'r')
+        labels = list()
         for line in fy:
             labels.append(line.strip())
         fy.close()

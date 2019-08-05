@@ -26,8 +26,7 @@ class NaiveBayes:
                 '+': 0,
                 '#': 0,
                 'blank': 0,
-                'm': None,
-                'b': None
+                'm': None
             }
             for c in node.image:
                 if c == '+':

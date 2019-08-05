@@ -1,7 +1,7 @@
 import os, math, random, collections
 from Node import Node
 from Scan import Scan
-
+from Regression import Regression
 
 class NaiveBayes:
 
@@ -23,16 +23,33 @@ class NaiveBayes:
     def buildPhi(self):  # number of + and # over total pixels in line
         for node in self.samples:
             node.phiVector = {
-                'blankPix': 0,
-                'filledPix': 0
+                '+': 0,
+                '#': 0,
+                'blank': 0,
+                'm': None,
+                'b': None
             }
             for c in node.image:
-                if c == '+' or c == '#':
-                    node.phiVector['filledPix'] += 1
+                if c == '+':
+                    node.phiVector['+'] += 1
                 elif c == '\n':
                     continue
+                elif c == '#':
+                    node.phiVector['#'] += 1
                 else:  # if it's a space
-                    node.phiVector['blankPix'] += 1
+                    node.phiVector['blank'] += 1
+            xList, yList = Regression.makeLists(node.image)
+            m, b = Regression.findRegression(xList, yList)
+            node.phiVector['m'] = round(m)
+
+    def buildPhiRegression(self):  # number of + and # over total pixels in line
+        for node in self.samples:
+            node.phiVector = {
+                'm': 0
+            }
+            xList, yList = Regression.makeLists(node.image)
+            m, b = Regression.findRegression(xList, yList)
+            node.phiVector['m'] = round(1)
 
     def p_feature(self, x, j, y):
         return self.p_phiXandYTrue(x, j, y) / self.cntY[y]
@@ -80,7 +97,6 @@ class NaiveBayes:
         return liklihoodRatio
 
     def predict(self, x):
-        # check this
         max_p = 0
         max_label = None
         for l in self.cntY:
@@ -101,12 +117,14 @@ if __name__ == '__main__':
     srcTestX = os.path.join(relpath, r'data/digitdata/validationimages')
     srcTestY = os.path.join(relpath, r'data/digitdata/validationlabels')
     testInstances = Scan.scanIn(srcTestX, srcTestY, 1)
-    testBayes = NaiveBayes(testInstances)
+    testBayes = NaiveBayes(testInstances) #assigns psivalues to all the test images
     total = 0
     correct = 0
-    for x in testBayes.samples:
+    for x in testInstances:
         total += 1
         p, label = bayes.predict(x)
         if (x.label == label):
             correct += 1
     print(f"Percent Correct: {correct / total * 100}%")
+    print(len(bayes.samples))
+    print()

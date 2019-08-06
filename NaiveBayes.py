@@ -2,6 +2,7 @@ import os, math, random, collections
 from Node import Node
 from Scan import Scan
 from Regression import Regression
+from Gap import Gap
 
 class NaiveBayes:
 
@@ -82,8 +83,11 @@ class NaiveBayes:
                 #'filled': 0,
                 #'#': 0,
                 #'blank': 0,
-                'm': None
-                #,'b': None
+                'm': None,
+                #'b': None
+                #'hGap': None,
+                'vGap': None
+                #'rand':  random.randint(0, 9)
             }
             #for c in node.image:
             #    if c == '+':
@@ -98,6 +102,8 @@ class NaiveBayes:
             m, b = Regression.findRegression(xList, yList)
             node.phiVector['m'] = round(m, 1)
             #node.phiVector['b'] = round(b)
+            node.phiVector['hGap'] = round(Gap.horizontalAvg(node.image), 1)
+            node.phiVector['vGap'] = round(Gap.verticalAvg(node.image), 1)
 
 
 if __name__ == '__main__':
@@ -128,5 +134,5 @@ if __name__ == '__main__':
             correct += 1
     print(f"Percent Correct: {correct / total * 100}%")
     print(len(bayes.samples))
-    #for i in bayes.samples:
-    #    print(i.phiVector['m'])
+    for i in testInstances:
+        print(i.phiVector['vGap'])

@@ -12,6 +12,7 @@ class Gap:
                 continue
             flag = False
             count = 0
+            filledCount = 0
             prev = None
             gapList.append(0)
             for c in i:
@@ -22,15 +23,15 @@ class Gap:
                 elif c == ' ' and flag is True:
                     count += 1
                 elif c != ' ' and flag is False:
+                    filledCount += 1
                     prev = c
                     continue
                 elif c != ' ' and flag is True:
+                    filledCount += 1
                     flag = False
                     gapList[-1] = count
-                else:
-                    prev = c
-                    continue
                 prev = c
+            gapList[-1] = gapList[-1] / filledCount
         #deltas = list()
         #for i in range(1, len(gapList)):
         #    deltas.append(gapList[i] - gapList[i - 1])
@@ -48,6 +49,7 @@ class Gap:
                 continue
             flag = False
             count = 0
+            filledCount = 0
             prev = None
             gapList.append(0)
             for i in range(0, lineCount):
@@ -59,14 +61,14 @@ class Gap:
                     count += 1
                 elif splitImage[i][c] != ' ' and flag is False:
                     prev = splitImage[i][c]
+                    filledCount += 1
                     continue
                 elif splitImage[i][c] != ' ' and flag is True:
                     flag = False
+                    filledCount += 1
                     gapList[-1] = count
-                else:
-                    prev = splitImage[i][c]
-                    continue
                 prev = splitImage[i][c]
+            gapList[-1] = gapList[-1] / filledCount
         #deltas = list()
         #for i in range(1, len(gapList)):
         #    deltas.append(gapList[i] - gapList[i - 1])

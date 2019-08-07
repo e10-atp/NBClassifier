@@ -3,15 +3,19 @@ from Node import Node
 from Scan import Scan
 from Regression import Regression
 from Gap import Gap
+from ScaleDown import ScaleDown
 
 class NaiveBayes:
 
-    def __init__(self, samples):
+    def __init__(self, samples, type):
         self.samples = samples
         self.cntY = {}
 
         self.countY()
-        self.buildPhi()
+        if type == 'digit' or type == 'd':
+            self.buildPhi()
+        else:
+            self.buildPhiFace()
         self.nLabels = len(self.cntY)
 
     def countY(self):
@@ -22,13 +26,13 @@ class NaiveBayes:
                 self.cntY[node.label] += 1
 
     def p_feature(self, x, j, y):
-        k = 2
+        k = 0.01
         numY =self.cntY[y]
         domainSizeY = len(self.cntY)
         return (self.p_phiXandYTrue(x, j, y) + k) / (numY + k * domainSizeY)
 
     def p_featureFalse(self, x, j, y):
-        k = 2
+        k = 0.01
         numYFalse = self.complement(self.cntY[y])
         domainSizeY = len(self.cntY)
         return (self.p_phiXandYFalse(x, j, y) + k) / (numYFalse + k * domainSizeY)
@@ -83,10 +87,23 @@ class NaiveBayes:
                 max_label = l
         return max_p, max_label
 
+    def buildPhiFace(self):  # number of + and # over total pixels in line
+        for node in self.samples:
+            node.phiVector = {
+                'm': None,
+                'hGap': None,
+                'vGap': None
+            }
+            xList, yList = Regression.makeLists(node.image)
+            m, b = Regression.findRegression(xList, yList)
+            node.phiVector['m'] = round(m, 1)
+            node.phiVector['hGap'] = round(Gap.horizontal(node.image))
+            node.phiVector['vGap'] = round(Gap.vertical(node.image))
+
     def buildPhi(self):  # number of + and # over total pixels in line
         for node in self.samples:
             node.phiVector = {
-                #'filled': 0,
+            #    'filled': 0,
                 #'#': 0,
                 #'blank': 0,
                 'm': None,
@@ -128,22 +145,28 @@ if __name__ == '__main__':
     faceHeight = 70
     instances = Scan.scanIn(srcx, srcy, digitHeight, 1)
     #instances = Scan.scanIn(facex, facey, faceHeight, 1)
-    bayes = NaiveBayes(instances)
+    bayes = NaiveBayes(instances, 'digit')
     print(bayes.cntY)
     srcTestX = os.path.join(relpath, r'data/digitdata/validationimages')
     srcTestY = os.path.join(relpath, r'data/digitdata/validationlabels')
-    ftestx = os.path.join(relpath, r'data/facedata/facedatavalidation')
-    ftesty = os.path.join(relpath, r'data/facedata/facedatavalidationlabels')
+    ftestx = os.path.join(relpath, r'data/facedata/facedatatest')
+    ftesty = os.path.join(relpath, r'data/facedata/facedatatestlabels')
     testInstances = Scan.scanIn(srcTestX, srcTestY, digitHeight, 1)
     #testInstances = Scan.scanIn(ftestx, ftesty, faceHeight, 1)
-    testBayes = NaiveBayes(testInstances) #assigns psivalues to all the test images
+    testBayes = NaiveBayes(testInstances, 'digit') #assigns psivalues to all the test images
     total = 0
     correct = 0
-    for x in testInstances:
-        total += 1
-        p, label = bayes.predict(x)
-        if (x.label == label):
-            correct += 1
-    print(f"Percent Correct: {correct / total * 100}%")
+    #for x in testInstances:
+    #    total += 1
+    #    p, label = bayes.predict(x)
+    #    if (x.label == label):
+    #        correct += 1
+    #print(f"Percent Correct: {correct / total * 100}%")
     print(len(bayes.samples))
-    print(testInstances[-1].phiVector)
+    print(testInstances[-1].image)
+    scaled = ScaleDown.scale(testInstances[-1].image, 0.25)
+    pscaled = ''
+    for list in scaled:
+        line = ''.join(list)
+        pscaled += line
+    print(pscaled)

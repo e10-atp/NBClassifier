@@ -22,10 +22,16 @@ class NaiveBayes:
                 self.cntY[node.label] += 1
 
     def p_feature(self, x, j, y):
-        return self.p_phiXandYTrue(x, j, y) / self.cntY[y]
+        k = 2
+        numY =self.cntY[y]
+        domainSizeY = len(self.cntY)
+        return (self.p_phiXandYTrue(x, j, y) + k) / (numY + k * domainSizeY)
 
     def p_featureFalse(self, x, j, y):
-        return self.p_phiXandYFalse(x, j, y) / self.complement(self.cntY[y])
+        k = 2
+        numYFalse = self.complement(self.cntY[y])
+        domainSizeY = len(self.cntY)
+        return (self.p_phiXandYFalse(x, j, y) + k) / (numYFalse + k * domainSizeY)
 
     def p_xGivenYTrue(self, x, y):
         prod = 1.0
@@ -36,7 +42,7 @@ class NaiveBayes:
     def p_phiXandYTrue(self, x, j, y):
         count = 0
         for n in self.samples:
-            if n.phiVector[j] == x.phiVector[j] and n.label == y:
+            if n.phiVector.get(j) == x.phiVector.get(j) and n.label == y:
                 count += 1
         return count
 
@@ -50,7 +56,7 @@ class NaiveBayes:
         # what happens when this never occurs?
         count = 0
         for n in self.samples:
-            if n.phiVector[j] == x.phiVector[j] and n.label != y:
+            if n.phiVector.get(j) == x.phiVector.get(j) and n.label != y:
                 count += 1
         return count
 
@@ -85,16 +91,22 @@ class NaiveBayes:
                 #'blank': 0,
                 'm': None,
                 #'b': None
-                #'hGap': None,
+                'hGap': None,
                 'vGap': None
                 #'rand':  random.randint(0, 9)
             }
+            #hdelta = Gap.horizontal(node.image)
+            #for i in range(0, len(hdelta)):
+            #    node.phiVector['row' + str(i)] = round(hdelta[i], 1)
+            #vdelta = Gap.vertical(node.image)
+            #for i in range(0, len(vdelta)):
+            #    node.phiVector['col' + str(i)] = round(vdelta[i], 1)
             #for c in node.image:
             #    if c == '+':
             #        node.phiVector['filled'] += 1
             #    elif c == '\n':
             #        continue
-           #    elif c == '#':
+            #    elif c == '#':
             #        node.phiVector['filled'] += 1
             #    else:  # if it's a space
             #        node.phiVector['blank'] += 1
@@ -102,8 +114,8 @@ class NaiveBayes:
             m, b = Regression.findRegression(xList, yList)
             node.phiVector['m'] = round(m, 1)
             #node.phiVector['b'] = round(b)
-            node.phiVector['hGap'] = round(Gap.horizontalAvg(node.image), 1)
-            node.phiVector['vGap'] = round(Gap.verticalAvg(node.image), 1)
+            node.phiVector['hGap'] = round(Gap.horizontal(node.image), 1)
+            node.phiVector['vGap'] = round(Gap.vertical(node.image), 1)
 
 
 if __name__ == '__main__':
@@ -134,5 +146,4 @@ if __name__ == '__main__':
             correct += 1
     print(f"Percent Correct: {correct / total * 100}%")
     print(len(bayes.samples))
-    for i in testInstances:
-        print(i.phiVector['vGap'])
+    print(testInstances[-1].phiVector)

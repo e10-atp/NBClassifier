@@ -36,7 +36,7 @@ class Scan:
     @staticmethod
     def randomSelect(data, labels, rate):  # insert number between 0 and 1
         samples = []
-        lim = math.ceil(len(data) * rate)
+        lim = math.ceil(len(labels) * rate)
         for i in range(0, lim):
             randnum = random.randint(0, len(labels) - 1)
             samples.append(Node(data[randnum], labels[randnum]))

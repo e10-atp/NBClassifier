@@ -29,4 +29,12 @@ class ScaleDown:
                 else:
                     scaledImage[i][j] = '0'
             scaledImage[i].append('\n')
-        return scaledImage
+        return ScaleDown.toString(scaledImage)
+
+    @staticmethod
+    def toString(scaledImage):
+        pscaled = ''
+        for list in scaledImage:
+            line = ''.join(list)
+            pscaled += line
+        return pscaled

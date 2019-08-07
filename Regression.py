@@ -10,7 +10,7 @@ class Regression:
         lines = image.split('\n')
         for y in range(0, len(lines)):
             for x in range(0, len(lines[y])):
-                if lines[y][x] != ' ':
+                if lines[y][x] != ' ' and lines[y][x] != '\n':
                     xList.append(x)
                     yList.append(y)
         return xList, yList

@@ -1,8 +1,10 @@
 from Node import Node
 from Scan import Scan
 import os, math, random, collections
+from Regression import Regression
 
 class percepNum:
+    
     def __init__(self, samples):
         self.samples = samples
         self.cntY = {}#labels
@@ -10,93 +12,114 @@ class percepNum:
         self.countY()
         self.buildPhi()
         self.nLabels = len(self.cntY)
-        weights0 = [0,0,0,0,0]
-        weights1 = [0,0,0,0,0]
-        weights2 = [0,0,0,0,0]
-        weights3 = [0,0,0,0,0]
-        weights4 = [0,0,0,0,0]
-        weights5 = [0,0,0,0,0]
-        weights6 = [0,0,0,0,0]
-        weights7 = [0,0,0,0,0]
-        weights8 = [0,0,0,0,0]
-        weights9 = [0,0,0,0,0]
-        weightsList = [weights0, weights1, weights2, weights3, weights4, weights5, weights6, weights7, weights8, weights9]
-
-     def countY(self):
+        
+    def countY(self):
         for node in self.samples:
             if node.label not in self.cntY:
                 self.cntY[node.label] = 1
             else:
                 self.cntY[node.label] += 1
 
-    def buildPhi(self):  # number of + and # over total pixels in line
-        for node in self.samples:
-            node.phiVector = {
-                'blankPix': 0,
-                'filledPix': 0
-            }
-            for c in node.image:
-                if c == '+' or c == '#':
-                    node.phiVector['filledPix'] += 1
-                elif c == '\n':
-                    continue
-                else:  # if it's a space
-                    node.phiVector['blankPix'] += 1
-
-    def p_feature(self, x, j, y):
-        return self.p_phiXandYTrue(x, j, y) / self.cntY[y]
-
-    def p_featureFalse(self, x, j, y):
-        return self.p_phiXandYFalse(x, j, y) / self.complement(self.cntY[y])
-
-	@staticmethod
-    def perceptron(self, x, y , feature1, feature2, feature3, feature4):#each feature is an array
-    	done = 0
-    	featureList = [feature1, feature2, feature3, feature4]
+    def perceptron(self, x, y, j, weightsList, numPass):#each feature is an array
     	#try to replace i with x here
         #e.g. feature1[i] should be the feature for x
+        xList, yList = Regression.makeLists(x.image)
+        m, b = Regression.findRegression(xList, yList)
         equationList = [0,0,0,0,0,0,0,0,0,0]
-        for a in weightsList:
-            equationList[a] = eights[0] + weightsList[a][1]*feature1[i] + weightsList[a][2]*feature2[i] + weightsList[a][3]*feature3[i] + weightsList[a][4]*feature4[i]
+        for a in range(10):
+            equationList[a] = weightsList[a][0]*m
 		
         largestEquation = equationList[0]
         equationNum = 0
-        for b in equationList[0]:
-            if equationList[b] > largestEquation:
+        for q in equationList[0]:
+            if equationList[q] > largestEquation:
                 largestEquation = equationList[0]
-                equationNum = b
+                equationNum = q
 
 
-		if y[i] == equationNum:
-			weightsList[equationNum][0] = weightsList[equationNum][0] + 1
-			for j in weights:
-				if j>0:
-					weightsList[equationNum][j] = weightsList[equationNum][j] + featureList[j-1][i]
-		else:
-			weightsList[equationNum][0] = weightsList[equationNum][0] - 1
-			for j in weights:
-				if j>0:
-					weightsList[equationNum][j] = weightsList[equationNum][j] - featureList[j-1][i]
+        if y == equationNum:
+            numPass = numPass + 1
 
+           # weightsList[equationNum][0] = weightsList[equationNum][0] + 1
+            #for k in :
+                #if k>0:
+                    #weightsList[equationNum][k] = weightsList[equationNum][k] + featureList[k-1][i]
+        else:
+            #weightsList[equationNum][0] = weightsList[equationNum][0] - 1
+            for k in range(j):
+                if k>0:
+                    weightsList[equationNum][k] = weightsList[equationNum][k] - m
+                    weightsList[y][k] = weightsList[y][k] + m
+
+        return weightsList, numPass
+    def buildPhi(self):  # number of + and # over total pixels in line
+        for node in self.samples:
+            node.phiVector = {
+
+                'm': None
+            }
+            xList, yList = Regression.makeLists(node.image)
+            m, b = Regression.findRegression(xList, yList)
+            node.phiVector['m'] = round(m, 1)
+
+    def predict(self, x, weightsList):
+        xList, yList = Regression.makeLists(x.image)
+        m, b = Regression.findRegression(xList, yList)
+        equationList = [0,0,0,0,0,0,0,0,0,0]
+        for a in weightsList:
+            equationList[a] = eights[0] + weightsList[a][1]*m
+        largestEquation = equationList[0]
+        equationNum = 0
+        for q in equationList[0]:
+            if equationList[q] > largestEquation:
+                largestEquation = equationList[0]
+                equationNum = q
+        return equationNum
 
 if __name__ == '__main__':
+
+    weights0 = [0]
+    weights1 = [0]
+    weights2 = [0]
+    weights3 = [0]
+    weights4 = [0]
+    weights5 = [0]
+    weights6 = [0]
+    weights7 = [0]
+    weights8 = [0]
+    weights9 = [0]
+    weightsList = [weights0, weights1, weights2, weights3, weights4, weights5, weights6, weights7, weights8, weights9]
+    j = weights0.len()
+    digitHeight = 28
     relpath = os.path.dirname(__file__)
     srcx = os.path.join(relpath, r'data/digitdata/trainingimages')
     srcy = os.path.join(relpath, r'data/digitdata/traininglabels')
-    instances = Scan.scanIn(srcx, srcy, 1)
+    instances = Scan.scanIn(srcx, srcy, digitHeight, 1)
     percep = percepNum(instances)
 
 
-    print(bayes.cntY)
+    #print(percep.cntY)
     srcTestX = os.path.join(relpath, r'data/digitdata/validationimages')
     srcTestY = os.path.join(relpath, r'data/digitdata/validationlabels')
-    testInstances = Scan.scanIn(srcTestX, srcTestY, 1)
-    testBayes = NaiveBayes(testInstances)
+    testInstances = Scan.scanIn(srcTestX, srcTestY, digitHeight, 1)
+    testPercep = percepNum(testInstances)
     total = 0
     correct = 0
-    for x in testBayes.samples:
+
+    endPoint = 0
+    numPass = 0
+    while endPoint ==0 or endPoint > numPass:
+        for x in testInstances:
+            weightsList, numPass = percep.perceptron(x, weightsList, numPass)
+            endPoint = endPoint + 1
+        if endPoint != numPass:
+            endPoint = 0
+            numPass = 0
+
+
+    for x in testInstances:
         total += 1
-        p, label = bayes.predict(x)
+        label = percep.predict(x, y, j, weightsList)
         if (x.label == label):
             correct += 1
     print(f"Percent Correct: {correct / total * 100}%")

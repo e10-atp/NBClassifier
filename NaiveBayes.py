@@ -1,5 +1,4 @@
-import os, math, random, collections
-from Node import Node
+import os
 from Scan import Scan
 from Regression import Regression
 from Gap import Gap
@@ -112,6 +111,13 @@ class NaiveBayes:
                 'vGap': None
                 #'rand':  random.randint(0, 9)
             }
+            scaled = ScaleDown.scale(node.image, 0.25)
+            i = 0
+            for c in scaled:
+                if c == '\n':
+                    continue
+                node.phiVector['scaled' + str(i)] = c
+                i += 1
             #hdelta = Gap.horizontal(node.image)
             #for i in range(0, len(hdelta)):
             #    node.phiVector['row' + str(i)] = round(hdelta[i], 1)
@@ -156,17 +162,11 @@ if __name__ == '__main__':
     testBayes = NaiveBayes(testInstances, 'digit') #assigns psivalues to all the test images
     total = 0
     correct = 0
-    #for x in testInstances:
-    #    total += 1
-    #    p, label = bayes.predict(x)
-    #    if (x.label == label):
-    #        correct += 1
-    #print(f"Percent Correct: {correct / total * 100}%")
-    print(len(bayes.samples))
+    for x in testInstances:
+        total += 1
+        p, label = bayes.predict(x)
+        if (x.label == label):
+            correct += 1
+    print(f"Percent Correct: {correct / total * 100}%")
     print(testInstances[-1].image)
-    scaled = ScaleDown.scale(testInstances[-1].image, 0.25)
-    pscaled = ''
-    for list in scaled:
-        line = ''.join(list)
-        pscaled += line
-    print(pscaled)
+    print(ScaleDown.scale(testInstances[-1].image, 0.25))

@@ -20,24 +20,23 @@ class percepNum:
             else:
                 self.cntY[node.label] += 1
 
-    def perceptron(self, x, y, j, weightsList, numPass):#each feature is an array
+    def perceptron(self, x, j, weightsList, numPass):#each feature is an array
     	#try to replace i with x here
         #e.g. feature1[i] should be the feature for x
         xList, yList = Regression.makeLists(x.image)
         m, b = Regression.findRegression(xList, yList)
         equationList = [0,0,0,0,0,0,0,0,0,0]
         for a in range(10):
-            equationList[a] = weightsList[a][0]*m
-		
+            equationList[a] = weightsList[a][0] + weightsList[a][1]*m
         largestEquation = equationList[0]
         equationNum = 0
-        for q in equationList[0]:
+        for q in range(10):
             if equationList[q] > largestEquation:
                 largestEquation = equationList[0]
                 equationNum = q
 
 
-        if y == equationNum:
+        if x.label == equationNum:
             numPass = numPass + 1
 
            # weightsList[equationNum][0] = weightsList[equationNum][0] + 1
@@ -49,7 +48,7 @@ class percepNum:
             for k in range(j):
                 if k>0:
                     weightsList[equationNum][k] = weightsList[equationNum][k] - m
-                    weightsList[y][k] = weightsList[y][k] + m
+                    weightsList[int(x.label)][k] = weightsList[int(x.label)][k] + m
 
         return weightsList, numPass
     def buildPhi(self):  # number of + and # over total pixels in line
@@ -66,11 +65,12 @@ class percepNum:
         xList, yList = Regression.makeLists(x.image)
         m, b = Regression.findRegression(xList, yList)
         equationList = [0,0,0,0,0,0,0,0,0,0]
-        for a in weightsList:
-            equationList[a] = eights[0] + weightsList[a][1]*m
+        rand = random.randint(0,9)
+        for a in range(10):
+            equationList[a] = weightsList[a][0] + weightsList[a][1] * m
         largestEquation = equationList[0]
         equationNum = 0
-        for q in equationList[0]:
+        for q in range(10):
             if equationList[q] > largestEquation:
                 largestEquation = equationList[0]
                 equationNum = q
@@ -78,18 +78,18 @@ class percepNum:
 
 if __name__ == '__main__':
 
-    weights0 = [0]
-    weights1 = [0]
-    weights2 = [0]
-    weights3 = [0]
-    weights4 = [0]
-    weights5 = [0]
-    weights6 = [0]
-    weights7 = [0]
-    weights8 = [0]
-    weights9 = [0]
+    weights0 = [0.01,0.01]
+    weights1 = [0.01,0.01]
+    weights2 = [0.01,0.01]
+    weights3 = [0.01,0.01]
+    weights4 = [0.01,0.01]
+    weights5 = [0.01,0.01]
+    weights6 = [0.01,0.01]
+    weights7 = [0.01,0.01]
+    weights8 = [0.01,0.01]
+    weights9 = [0.01,0.01]
     weightsList = [weights0, weights1, weights2, weights3, weights4, weights5, weights6, weights7, weights8, weights9]
-    j = weights0.len()
+    j = len(weights0)
     digitHeight = 28
     relpath = os.path.dirname(__file__)
     srcx = os.path.join(relpath, r'data/digitdata/trainingimages')
@@ -108,18 +108,23 @@ if __name__ == '__main__':
 
     endPoint = 0
     numPass = 0
-    while endPoint ==0 or endPoint > numPass:
-        for x in testInstances:
-            weightsList, numPass = percep.perceptron(x, weightsList, numPass)
+    forceEnd = 0
+    while (endPoint ==0 or endPoint > numPass) and forceEnd < 100:
+
+        forceEnd = forceEnd + 1
+        #print(forceEnd)
+        for x in instances:
+            weightsList, numPass = percep.perceptron(x, j, weightsList, numPass)
             endPoint = endPoint + 1
         if endPoint != numPass:
             endPoint = 0
             numPass = 0
-
+    print(weightsList)
 
     for x in testInstances:
         total += 1
-        label = percep.predict(x, y, j, weightsList)
-        if (x.label == label):
+        label = percep.predict(x, weightsList)
+        labelstr = str(label)
+        if (x.label == labelstr):
             correct += 1
     print(f"Percent Correct: {correct / total * 100}%")

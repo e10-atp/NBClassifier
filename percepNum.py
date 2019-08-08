@@ -23,13 +23,15 @@ class percepNum:
                 self.cntY[node.label] += 1
 
     def perceptron(self, x, j, weightsList, numPass):#each feature is an array
-        f1, f2, f3 = percepNum.feature(x)
-        featureList  = [f1, f2, f3]
+        featureList  = percepNum.feature(x)
         equationList = [0,0,0,0,0,0,0,0,0,0]
         for a in range(10):
-            equationList[a] = weightsList[a][0] + weightsList[a][1]*f1 + weightsList[a][2]*f2 + weightsList[a][3]*f3
-        largestEquation = equationList[0]
+            #equationList[a] = weightsList[a][0]
+            for b in range(j):
+                #if b >0:
+                equationList[a] = equationList[a] + weightsList[a][b]*featureList[b]
         equationNum = 0
+        largestEquation = equationList[0]
         for q in range(10):
             if equationList[q] > largestEquation:
                 largestEquation = equationList[0]
@@ -44,9 +46,11 @@ class percepNum:
         return weightsList, numPass
 
     def perceptronFace(self, x, j, weights, numPass):
-        f1, f2, f3 = percepNum.featureFace(x)
-        featureList = [f1, f2, f3]
-        equation = weights[0] + weights[1]*f1 + weights[2]*f2 + weights[3]*f3
+        featureList = percepNum.featureFace(x)
+        equation = weights[0]
+        for b in range(j):
+            if b>0:
+                equation = equation + featureList[b-1]*weights[b]
         if (equation >= 0 and x.label == "1") or (equation <0 and x.label == "0"):
             numPass = numPass + 1
         elif equation <0 and x.label == "1":
@@ -65,10 +69,23 @@ class percepNum:
     def feature(x):
         #xList, yList = Regression.makeLists(x.image)
         #m, b = Regression.findRegression(xList, yList)
-        v = Gap.vertical(x.image)
-        h = Gap.horizontal(x.image)
-        im, s = ScaleDown.scale2(x.image, 7) 
-        return v, h, s
+        #v = Gap.vertical(x.image)
+        #h = Gap.horizontal(x.image)
+        #m, s = ScaleDown.scale2(x.image, 7) 
+        featureList = []
+        
+        scaled = ScaleDown.scale(x.image, 0.25)
+        
+        scaledLines = scaled.split('\n')
+        del scaledLines[-1]
+        #print(scaledLines)
+        for k in range(7):
+            for z in range(7):
+                i = 0
+                if scaledLines[k][z] == '1':
+                    i += 1
+                featureList.append(i)
+        return featureList
 
     @staticmethod
     def featureFace(x):
@@ -77,7 +94,7 @@ class percepNum:
         v = Gap.vertical(x.image)
         h = Gap.horizontal(x.image)
         #im, s = ScaleDown.scale2(x.image, 7) 
-        return m, v, h
+        return [m, v, h]
 
     def buildPhi(self):  # number of + and # over total pixels in line
         for node in self.samples:
@@ -89,23 +106,28 @@ class percepNum:
             m, b = Regression.findRegression(xList, yList)
             node.phiVector['m'] = round(m, 1)
 
-    def predict(self, x, weightsList):
-        f1, f2, f3 = percepNum.feature2Face(x)
+    def predict(self, x,j, weightsList):
+        featureList  = percepNum.feature(x)
         equationList = [0,0,0,0,0,0,0,0,0,0]
-        rand = random.randint(0,9)
         for a in range(10):
-            equationList[a] = weightsList[a][0] + weightsList[a][1] *f1 + weightsList[a][2]*f2 + weightsList[a][3]*f3 
-        largestEquation = equationList[0]
+            equationList[a] = weightsList[a][0]
+            for b in range(j):
+                if b >0:
+                    equationList[a] = equationList[a] + weightsList[a][b]*featureList[b]
         equationNum = 0
+        largestEquation = equationList[0]
         for q in range(10):
             if equationList[q] > largestEquation:
                 largestEquation = equationList[0]
                 equationNum = q
         return equationNum
 
-    def predictFace(self, x, weights):
-        f1, f2, f3 = percepNum.featureFace(x)
-        equation = weights[0] + weights[1] *f1 + weights[2]*f2 + weights[3]*f3 
+    def predictFace(self, x,j,  weights):
+        featureList = percepNum.featureFace(x)
+        equation = weights[0]
+        for b in range(j):
+            if b>0:
+                equation = equation + featureList[b-1]*weights[b]
         if equation >= 0:
             return "1"
         else:
@@ -114,18 +136,13 @@ class percepNum:
 
     @staticmethod
     def pDigit():
-        weights0 = [0.01,0.01,0.01,0.01]
-        weights1 = [0.01,0.01,0.01,0.01]
-        weights2 = [0.01,0.01,0.01,0.01]
-        weights3 = [0.01,0.01,0.01,0.01]
-        weights4 = [0.01,0.01,0.01,0.01]
-        weights5 = [0.01,0.01,0.01,0.01]
-        weights6 = [0.01,0.01,0.01,0.01]
-        weights7 = [0.01,0.01,0.01,0.01]
-        weights8 = [0.01,0.01,0.01,0.01]
-        weights9 = [0.01,0.01,0.01,0.01]
-        weightsList = [weights0, weights1, weights2, weights3, weights4, weights5, weights6, weights7, weights8, weights9]
-        j = len(weights0)
+        weightsList = [0]*10
+        for q in range(10):
+            weights = [0]*49
+            for w in range(49):
+                weights[w] = random.random()
+            weightsList[q] = weights
+        j = len(weightsList[0])
         digitHeight = 28
         relpath = os.path.dirname(__file__)
         srcx = os.path.join(relpath, r'data/digitdata/trainingimages')
@@ -143,7 +160,7 @@ class percepNum:
         endPoint = 0
         numPass = 0
         forceEnd = 0
-        while (endPoint == 0 or endPoint > numPass) and forceEnd < 5:
+        while (endPoint == 0 or endPoint > numPass) and forceEnd < 100:
             forceEnd = forceEnd + 1
             #print(forceEnd)
             for x in instances:
@@ -152,13 +169,12 @@ class percepNum:
             if endPoint != numPass:
                 endPoint = 0
                 numPass = 0
-        print(weightsList)
-
+        #print(weightsList)
         for x in testInstances:
             total += 1
-            label = percep.predict(x, weightsList)
+            label = percep.predict(x, j, weightsList)
             labelstr = str(label)
-            print(label)
+            #print(label)
             if (x.label == labelstr):
                 correct += 1
         print(f"Numbers Percent Correct: {correct / total * 100}%")
@@ -167,7 +183,9 @@ class percepNum:
 
     @staticmethod
     def pFace():
-        weights = [0.01 0.01, 0.01, 0.01]
+        weights = [0]*4
+        for w in range(4):
+            weights[w] = random.random()
         j = len(weights)
         relpath = os.path.dirname(__file__)
         facex = os.path.join(relpath, r'data/facedata/facedatatrain')
@@ -185,7 +203,7 @@ class percepNum:
         endPoint = 0
         numPass = 0
         forceEnd = 0
-        while (endPoint == 0 or endPoint > numPass) and forceEnd < 1000:
+        while (endPoint == 0 or endPoint > numPass) and forceEnd < 50:
             forceEnd = forceEnd + 1
             for x in instances:
                 weights, numPass = percep.perceptronFace(x, j, weights, numPass)
@@ -193,15 +211,15 @@ class percepNum:
             if endPoint != numPass:
                 endPoint = 0
                 numPass = 0
-
+        print(weights)
         for x in testInstances:
             total += 1
-            label = percep.predictFace(x, weights)
+            label = percep.predictFace(x,j, weights)
             if (x.label == label):
                 correct += 1
         print(f"Faces Percent Correct: {correct / total * 100}%")
 
 
 if __name__ == '__main__':
-    percepNum.pDigit()
+    #percepNum.pDigit()
     percepNum.pFace()

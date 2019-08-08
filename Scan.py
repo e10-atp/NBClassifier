@@ -24,7 +24,7 @@ class Scan:
             pylabels.append(line.strip())
         fy.close()
         labels = np.asarray(pylabels)
-        if rate > 1:
+        if rate > 1: # for testing purposes
             instances = list()
             for i in range(0, len(labels)):
                 instances.append(Node(data[i], labels[i]))

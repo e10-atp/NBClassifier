@@ -109,8 +109,8 @@ class NaiveBayes:
         faceHeight = 70
         instances = Scan.scanIn(facex, facey, faceHeight, trainingRate)
         bayes = NaiveBayes(instances, 'f')
-        ftestx = os.path.join(relpath, r'data/facedata/facedatavalidation')
-        ftesty = os.path.join(relpath, r'data/facedata/facedatavalidationlabels')
+        ftestx = os.path.join(relpath, r'data/facedata/facedatatest')
+        ftesty = os.path.join(relpath, r'data/facedata/facedatatestlabels')
         testInstances = Scan.scanIn(ftestx, ftesty, faceHeight, trainingRate)
         testBayes = NaiveBayes(testInstances, 'f')  # assigns phivalues to all the test images
         print(bayes.cntY)
@@ -139,8 +139,8 @@ class NaiveBayes:
         digitHeight = 28
         instances = Scan.scanIn(srcx, srcy, digitHeight, trainingRate)
         bayes = NaiveBayes(instances, 'd')
-        srcTestX = os.path.join(relpath, r'data/digitdata/validationimages')
-        srcTestY = os.path.join(relpath, r'data/digitdata/validationlabels')
+        srcTestX = os.path.join(relpath, r'data/digitdata/testimages')
+        srcTestY = os.path.join(relpath, r'data/digitdata/testlabels')
         testInstances = Scan.scanIn(srcTestX, srcTestY, digitHeight, trainingRate)
         testBayes = NaiveBayes(testInstances, 'd')  # assigns psivalues to all the test images
         print(bayes.cntY)

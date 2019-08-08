@@ -164,7 +164,6 @@ class NaiveBayes:
 
 
 if __name__ == '__main__':
-    for i in range(0, 5):
-        rate = 1
-        NaiveBayes.nbFace(rate)
-        NaiveBayes.nbDigit(rate)
+    rate = 1
+    NaiveBayes.nbFace(rate)
+    NaiveBayes.nbDigit(rate)

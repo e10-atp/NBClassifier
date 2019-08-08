@@ -22,6 +22,16 @@ class percepNum:
             else:
                 self.cntY[node.label] += 1
 
+    def buildPhi(self):  # number of + and # over total pixels in line
+        for node in self.samples:
+            scaled = ScaleDown.scale(node.image, 0.25)
+            i = 0
+            scaledLines = scaled.split('\n')
+            del scaledLines[-1]
+            for line in scaledLines:
+                node.phiVector['scaled' + str(i)] = line
+                i += 1
+
     def perceptron(self, x, j, weightsList, numPass):#each feature is an array
         featureList  = percepNum.feature(x)
         equationList = [0,0,0,0,0,0,0,0,0,0]
@@ -79,8 +89,8 @@ class percepNum:
         scaledLines = scaled.split('\n')
         del scaledLines[-1]
         #print(scaledLines)
-        for k in range(7):
-            for z in range(7):
+        for k in range(28):
+            for z in range(28):
                 i = 0
                 if scaledLines[k][z] == '1':
                     i += 1
@@ -95,16 +105,6 @@ class percepNum:
         h = Gap.horizontal(x.image)
         #im, s = ScaleDown.scale2(x.image, 7) 
         return [m, v, h]
-
-    def buildPhi(self):  # number of + and # over total pixels in line
-        for node in self.samples:
-            node.phiVector = {
-
-                'm': None
-            }
-            xList, yList = Regression.makeLists(node.image)
-            m, b = Regression.findRegression(xList, yList)
-            node.phiVector['m'] = round(m, 1)
 
     def predict(self, x,j, weightsList):
         featureList  = percepNum.feature(x)
@@ -160,7 +160,7 @@ class percepNum:
         endPoint = 0
         numPass = 0
         forceEnd = 0
-        while (endPoint == 0 or endPoint > numPass) and forceEnd < 100:
+        while (endPoint == 0 or endPoint > numPass) and forceEnd < 50:
             forceEnd = forceEnd + 1
             #print(forceEnd)
             for x in instances:

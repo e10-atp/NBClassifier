@@ -24,7 +24,14 @@ class Scan:
             pylabels.append(line.strip())
         fy.close()
         labels = np.asarray(pylabels)
-        return Scan.randomSelect(data, labels, rate)
+        if rate > 1:
+            instances = list()
+            for i in range(0, len(labels)):
+                instances.append(Node(data[i], labels[i]))
+            npInstances = np.asarray(instances)
+            return npInstances
+        else:
+            return Scan.randomSelect(data, labels, rate)
 
     @staticmethod
     def emptyLine(line):

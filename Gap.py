@@ -32,9 +32,6 @@ class Gap:
                     gapList[-1] = count
                 prev = c
             gapList[-1] = gapList[-1] / filledCount
-        #deltas = list()
-        #for i in range(1, len(gapList)):
-        #    deltas.append(gapList[i] - gapList[i - 1])
         return numpy.mean(gapList)
 
     @staticmethod
@@ -69,9 +66,6 @@ class Gap:
                     gapList[-1] = count
                 prev = splitImage[i][c]
             gapList[-1] = gapList[-1] / filledCount
-        #deltas = list()
-        #for i in range(1, len(gapList)):
-        #    deltas.append(gapList[i] - gapList[i - 1])
         return numpy.mean(gapList)
 
     @staticmethod

@@ -1,4 +1,5 @@
 import math
+import numpy as np
 
 class ScaleDown:
     @staticmethod
@@ -9,11 +10,7 @@ class ScaleDown:
         lineSize = len(splitImage[0])
         scaledLines = math.ceil(lineCount * rate)
         scaledSize = math.ceil(lineSize * rate)
-        scaledImage = [] #+1 for the newline char
-        for i in range(0, scaledLines):
-            scaledImage.append([])
-            for j in range(0, scaledSize):
-                scaledImage[i].append('-1')
+        scaledImage = np.full((scaledLines, scaledSize + 1), '-1', np.dtype(str)) #+1 for the newline char
         for i in range(0, scaledLines):
             for j in range(0, scaledSize):
                 filledCount = 0
@@ -28,13 +25,13 @@ class ScaleDown:
                     scaledImage[i][j] = '1'
                 else:
                     scaledImage[i][j] = '0'
-            scaledImage[i].append('\n')
+            scaledImage[i][j + 1] = '\n'
         return ScaleDown.toString(scaledImage)
 
     @staticmethod
     def toString(scaledImage):
-        pscaled = ''
-        for list in scaledImage:
-            line = ''.join(list)
-            pscaled += line
-        return pscaled
+        lines = ''
+        for i in scaledImage:
+            for j in i:
+                lines += j
+        return lines

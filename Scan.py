@@ -1,4 +1,5 @@
 import math, random
+import numpy as np
 from Node import Node
 from itertools import islice
 
@@ -7,20 +8,22 @@ class Scan:
 
     @staticmethod
     def scanIn(srcx, srcy, height, rate):
-        data = list()
+        pydata = list()
         with open(str(srcx), 'r') as fx:
             while True:
                 image = list(islice(fx, height))
                 if not image: #EOF
                     break
                 image = ''.join(image)
-                data.append(image)
+                pydata.append(image)
         fx.close()
+        data = np.asarray(pydata)
         fy = open(str(srcy), 'r')
-        labels = list()
+        pylabels = list()
         for line in fy:
-            labels.append(line.strip())
+            pylabels.append(line.strip())
         fy.close()
+        labels = np.asarray(pylabels)
         return Scan.randomSelect(data, labels, rate)
 
     @staticmethod
@@ -35,9 +38,10 @@ class Scan:
 
     @staticmethod
     def randomSelect(data, labels, rate):  # insert number between 0 and 1
-        samples = []
         lim = math.ceil(len(labels) * rate)
+        pysamples = list()
         for i in range(0, lim):
             randnum = random.randint(0, len(labels) - 1)
-            samples.append(Node(data[randnum], labels[randnum]))
+            pysamples.append((Node(data[randnum], labels[randnum])))
+        samples = np.asarray(pysamples)
         return samples

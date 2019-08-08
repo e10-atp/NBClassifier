@@ -8,8 +8,8 @@ class ScaleDown:
         del splitImage[-1]
         lineCount = len(splitImage)
         lineSize = len(splitImage[0])
-        scaledLines = math.ceil(lineCount * rate)
-        scaledSize = math.ceil(lineSize * rate)
+        scaledLines = math.floor(lineCount * rate)
+        scaledSize = math.floor(lineSize * rate)
         scaledImage = np.full((scaledLines, scaledSize + 1), '-1', np.dtype(str)) #+1 for the newline char
         for i in range(0, scaledLines):
             for j in range(0, scaledSize):

@@ -95,31 +95,11 @@ class NaiveBayes:
         for node in self.samples:
             scaled = ScaleDown.scale(node.image, 0.25)
             i = 0
-            #for c in scaled:
-            #    if c == '\n':
-            #        continue
-            #    node.phiVector['scaled' + str(i)] = c
-            #    i += 1
             scaledLines = scaled.split('\n')
             del scaledLines[-1]
             for line in scaledLines:
                 node.phiVector['scaled' + str(i)] = line
                 i += 1
-            #for c in node.image:
-            #    if c == '+':
-            #        node.phiVector['filled'] += 1
-            #    elif c == '\n':
-            #        continue
-            #    elif c == '#':
-            #        node.phiVector['filled'] += 1
-            #    else:  # if it's a space
-            #        node.phiVector['blank'] += 1
-            #xList, yList = Regression.makeLists(node.image)
-            #m, b = Regression.findRegression(xList, yList)
-            #node.phiVector['m'] = round(m, 1)
-            #node.phiVector['b'] = round(b)
-            #node.phiVector['hGap'] = round(Gap.horizontal(node.image), 1)
-            #node.phiVector['vGap'] = round(Gap.vertical(node.image), 1)
 
     @staticmethod
     def nbFace(trainingRate):
@@ -142,7 +122,13 @@ class NaiveBayes:
             if (x.label == label):
                 correct += 1
         print(f"Percent Correct: {correct / total * 100}%")
+        print('Printing Example...')
+        print('Likelihood Ratio: ' + str(p))
+        print('Feature Vector:')
         print(testInstances[-1].phiVector)
+        print('Predicted Label: ' + label)
+        print('Actual Label: ' + testInstances[-1].label)
+        print('Actual Image:')
         print(testInstances[-1].image)
 
     @staticmethod
@@ -166,10 +152,18 @@ class NaiveBayes:
             if (x.label == label):
                 correct += 1
         print(f"Percent Correct: {correct / total * 100}%")
+        print('Printing Example...')
+        print('Likelihood Ratio: ' + str(p))
+        print('Feature Vector:')
         print(testInstances[-1].phiVector)
-        print(testInstances[-1].image)
         print(ScaleDown.scale(testInstances[-1].image, 0.25))
+        print('Predicted Label: ' + label)
+        print('Actual Label: ' + testInstances[-1].label)
+        print('Actual Image:')
+        print(testInstances[-1].image)
+
 
 if __name__ == '__main__':
-    NaiveBayes.nbFace(1)
-    NaiveBayes.nbDigit(1)
+    for i in range(0, 5):
+        NaiveBayes.nbFace(1)
+        NaiveBayes.nbDigit(1)

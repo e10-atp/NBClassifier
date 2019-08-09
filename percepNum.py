@@ -237,4 +237,4 @@ class percepNum:
 
 if __name__ == '__main__':
     percepNum.pDigit()
-    #percepNum.pFace()
+    percepNum.pFace()

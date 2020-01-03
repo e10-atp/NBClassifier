@@ -1,3 +1,3 @@
-# CS440Project2
+# NB Classifier
 
-Naive Bayes Classifier and feature extractors for CS440: Intro to AI.
+Naive Bayes Classifier and feature extractors for CS440: Intro to AI. Training and testing sets included in data.zip
